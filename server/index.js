@@ -11,7 +11,12 @@ const app = express();
    Middleware
 ========================= */
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use(express.json());
 
 /* =========================
@@ -24,7 +29,7 @@ mongoose
     console.log("MongoDB Connected");
   })
   .catch((err) => {
-    console.log(err);
+    console.log("MongoDB Error:", err);
   });
 
 /* =========================
@@ -57,6 +62,17 @@ const downloadSchema = new mongoose.Schema(
 const Download = mongoose.model("Download", downloadSchema);
 
 /* =========================
+   Root Route
+========================= */
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "ReelDown API Running 🚀",
+  });
+});
+
+/* =========================
    Download Route
 ========================= */
 
@@ -74,7 +90,7 @@ app.post("/download", async (req, res) => {
     // Remove query params
     url = url.split("?")[0];
 
-    // Validate
+    // Validate Instagram URL
     const valid =
       url.includes("/p/") ||
       url.includes("/reel/") ||
@@ -87,7 +103,7 @@ app.post("/download", async (req, res) => {
       });
     }
 
-    // Fetch Instagram video
+    // Fetch Instagram media
     const data = await instagramGetUrl(url);
 
     if (!data || !data.url_list || data.url_list.length === 0) {
@@ -109,7 +125,7 @@ app.post("/download", async (req, res) => {
       type = "reel";
     }
 
-    // Save in DB
+    // Save to MongoDB
     const newDownload = new Download({
       originalUrl: url,
       downloadUrl,
@@ -135,7 +151,7 @@ app.post("/download", async (req, res) => {
 });
 
 /* =========================
-   Get All Downloads
+   Download History
 ========================= */
 
 app.get("/downloads", async (req, res) => {
@@ -147,7 +163,7 @@ app.get("/downloads", async (req, res) => {
     res.json(downloads);
 
   } catch (err) {
-    console.log(err);
+    console.log("History Error:", err);
 
     res.status(500).json({
       success: false,
@@ -157,13 +173,7 @@ app.get("/downloads", async (req, res) => {
 });
 
 /* =========================
-   Server
+   Export for Vercel
 ========================= */
-
-const PORT = process.env.PORT || 5000;
-
-
-
-
 
 module.exports = app;
