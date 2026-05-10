@@ -535,10 +535,12 @@ function HomePage() {
     if (!url.trim()) { setError("Please paste an Instagram URL first."); return; }
     try {
       setLoading(true); setError(""); setVideo("");
-      const cleanUrl = url.split("?")[0];
-      const res = await axios.post(
+
+  const cleanUrl = url.split("?")[0];
+
+const res = await axios.post(
   `${process.env.REACT_APP_API_URL}/download`,
-  { url: clean }
+  { url: cleanUrl }
 );
       if (res.data.success) {
         setVideo(res.data.downloadUrl);
