@@ -536,7 +536,10 @@ function HomePage() {
     try {
       setLoading(true); setError(""); setVideo("");
       const cleanUrl = url.split("?")[0];
-      const res = await axios.post("http://localhost:5000/download", { url: cleanUrl });
+      const res = await axios.post(
+  `${process.env.REACT_APP_API_URL}/download`,
+  { url: clean }
+);
       if (res.data.success) {
         setVideo(res.data.downloadUrl);
         setTimeout(() => videoRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
